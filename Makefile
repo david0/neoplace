@@ -3,10 +3,10 @@ CC=$(TARGET)gcc
 LD=$(TARGET)gcc
 WINDRES=$(TARGET)windres
 
-CFLAGS=-DWINVER=0x500 -DWIN32_WINNT=0x500 -Os -DWITH_ICON=1 -Wall
-LDFLAGS=-g -mwindows
+CFLAGS=-DWINVER=0x500 -DWIN32_WINNT=0x500 -Os -DWITH_ICON=1 
+LDFLAGS=-mwindows
 
-PROG=wintile.exe
+PROG=neoplace.exe
 OBJS=main.o resources.o
 
 all: ${PROG}
