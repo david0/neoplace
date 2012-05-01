@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include "resources.h"
+#include "trayicon.h"
 
 enum {
 	ID_BUTTON_RESIZE,
@@ -45,12 +46,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 HWND createMatrixButton(HWND parent, HINSTANCE hInstance, unsigned i, unsigned j);
 HWND createMainWindow(HINSTANCE current_instance);
+void exitApplication();
 
 HWND top_window, main_window;
 
 HWND buttons[BUTTON_MAX][BUTTON_MAX];
-bool is_checking = false;
-//<is currently checking the size matrix ?
+bool is_checking = false;	//<is currently checking the size matrix ?
 POINT last_click_position;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
@@ -58,6 +59,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	MSG msg;
 
 	top_window = GetForegroundWindow();
+
+	trayicon_init(LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON)), APPNAME);
+	trayicon_add_item(NULL, &exitApplication);
+	trayicon_add_item("Exit", &exitApplication);
 
 	main_window = createMainWindow(hInstance);
 	ShowWindow(main_window, nCmdShow);
@@ -166,6 +171,7 @@ HWND createMainWindow(HINSTANCE current_instance)
 
 void exitApplication()
 {
+	trayicon_remove();
 	PostQuitMessage(0);
 }
 
@@ -179,7 +185,6 @@ HWND createMatrixButton(HWND parent, HINSTANCE hInstance, unsigned i, unsigned j
 			      MARGIN + j * (BUTTON_SIZE + BUTTON_SPACE),
 			      MARGIN + i * (BUTTON_SIZE + BUTTON_SPACE),
 			      BUTTON_SIZE, BUTTON_SIZE, parent, NULL, hInstance, NULL);
-	//ID_LAST + i * BUTTON_MAX_ROWS + j);
 	return button;
 }
 

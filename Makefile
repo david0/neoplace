@@ -7,7 +7,13 @@ CFLAGS=-DWINVER=0x500 -DWIN32_WINNT=0x500 -Os -DWITH_ICON=1
 LDFLAGS=-mwindows
 
 PROG=neoplace.exe
-OBJS=main.o resources.o
+OBJS=main.o resources.o trayicon.o
+
+
+ifdef DEBUG
+				CFLAGS+= -g
+				LDFLAGS:=$(filter-out -mwindows, $(LDFLAGS))
+endif
 
 all: ${PROG}
 
