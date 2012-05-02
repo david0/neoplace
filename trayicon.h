@@ -4,7 +4,7 @@
 #include <windows.h>
 #include <stdbool.h>
 
-typedef void (*callback_functionPtr)(); 
+typedef void (*callback_functionPtr) ();
 
 bool trayicon_init(HICON icon, char tooltip[]);
 void trayicon_remove();

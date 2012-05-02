@@ -47,8 +47,10 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 HWND createMatrixButton(HWND parent, HINSTANCE hInstance, unsigned i, unsigned j);
 HWND createMainWindow(HINSTANCE current_instance);
 void exitApplication();
+void toggleWindowVisible();
 
 HWND top_window, main_window;
+bool is_visible = false;
 
 HWND buttons[BUTTON_MAX][BUTTON_MAX];
 bool is_checking = false;	//<is currently checking the size matrix ?
@@ -61,12 +63,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	top_window = GetForegroundWindow();
 
 	trayicon_init(LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON)), APPNAME);
-//	trayicon_add_item(NULL, &exitApplication);
+	trayicon_add_item(NULL, &toggleWindowVisible);
 	trayicon_add_item("Exit", &exitApplication);
 
 	main_window = createMainWindow(hInstance);
-	ShowWindow(main_window, nCmdShow);
-	UpdateWindow(main_window);
+
+	is_visible = false;
 
 	while (GetMessage(&msg, NULL, 0, 0) > 0) {
 		TranslateMessage(&msg);
@@ -74,6 +76,16 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	}
 
 	return (int)msg.wParam;
+}
+
+void toggleWindowVisible()
+{
+	is_visible = !is_visible;
+	if (is_visible) {
+		ShowWindow(main_window, SW_SHOWDEFAULT);
+		UpdateWindow(main_window);
+	} else
+		ShowWindow(main_window, SW_HIDE);
 }
 
 POINT getTopMidOfWindow(HWND window)
@@ -310,6 +322,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			HWND foreground = GetForegroundWindow();
 			if (foreground != hWnd && isResizeAndMoveAble(foreground)) {
+				KillTimer(hWnd, 1);
 				top_window = foreground;
 
 				centerOnWindow(hWnd, top_window);
@@ -320,14 +333,16 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_KILLFOCUS:
 		{
-			SetTimer(hWnd, 1, 200, NULL);
-			is_checking = false;
-			break;
+			if (is_visible) {
+				SetTimer(hWnd, 1, 200, NULL);
+				is_checking = false;
+			}
 		}
+		break;
 
-	case WM_DESTROY:
+	case WM_CLOSE:
 		{
-			exitApplication();
+			toggleWindowVisible();
 			return 0;
 		}
 

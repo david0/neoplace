@@ -79,11 +79,11 @@ void trayicon_add_item(char *text, callback_functionPtr functionPtr)
 	if (!text) {
 		functionptr_array[0] = functionPtr;
 	} else {
-	  item_count++;
+		item_count++;
 		functionptr_array =
-		    realloc(functionptr_array, sizeof(callback_functionPtr) * item_count-1);
-		AppendMenu(popup_menu, MF_STRING, ID_LAST + item_count-1, text);
-		functionptr_array[item_count-1] = functionPtr;
+		    realloc(functionptr_array, sizeof(callback_functionPtr) * item_count - 1);
+		AppendMenu(popup_menu, MF_STRING, ID_LAST + item_count - 1, text);
+		functionptr_array[item_count - 1] = functionPtr;
 	}
 
 }
@@ -120,7 +120,7 @@ LRESULT CALLBACK trayicon_messageloop(HWND hWnd, UINT msg, WPARAM wParam, LPARAM
 		{
 			//find out if a menu item was clicked
 			if (lParam >= ID_LAST && lParam < ID_LAST + item_count)
-				(*functionptr_array[lParam - ID_LAST+1]) ();
+				(*functionptr_array[lParam - ID_LAST + 1]) ();
 			break;
 		}
 	}
