@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	top_window = GetForegroundWindow();
 
 	trayicon_init(LoadIcon(hInstance, MAKEINTRESOURCE(IDI_APPICON)), APPNAME);
-	trayicon_add_item(NULL, &exitApplication);
+//	trayicon_add_item(NULL, &exitApplication);
 	trayicon_add_item("Exit", &exitApplication);
 
 	main_window = createMainWindow(hInstance);

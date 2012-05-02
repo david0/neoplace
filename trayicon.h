@@ -4,15 +4,11 @@
 #include <windows.h>
 #include <stdbool.h>
 
-typedef enum {
-	TRAYICON_CLICKED,
-	TRAYICON_EXIT_CLICKED,
-	TRAYICON_BEFORE_REMOVE
-} TRAYICON_EVENT;
+typedef void (*callback_functionPtr)(); 
 
 bool trayicon_init(HICON icon, char tooltip[]);
 void trayicon_remove();
 
-void trayicon_add_item(char *text, void (functionPtr) ());
+void trayicon_add_item(char *text, callback_functionPtr functionPtr);
 
 #endif
