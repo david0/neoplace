@@ -48,7 +48,7 @@ void toggleWindowVisible();
 HWND createMatrixButton(HWND parent, HINSTANCE hInstance, unsigned i, unsigned j);
 HWND createMainWindow(HINSTANCE current_instance);
 void centerOnWindow(HWND windowToCenter, HWND windowToCenterOn);
-void uncheck_all_buttons();
+void uncheckAllButtons();
 HWND getTopWindow();
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -138,7 +138,7 @@ void centerOnWindow(HWND windowToCenter, HWND windowToCenterOn)
 	SetWindowPos(windowToCenter, HWND_TOPMOST, point.x, point.y, 0, 0, SWP_NOSIZE);
 
 	is_checking = false;
-	uncheck_all_buttons();
+	uncheckAllButtons();
 }
 
 void resizeMainWindow(HWND win)
@@ -230,7 +230,7 @@ void initGUI(HWND win, HINSTANCE hInstance)
 
 }
 
-void uncheck_all_buttons()
+void uncheckAllButtons()
 {
 	unsigned x, y;
 	for (x = 0; x < BUTTON_COLS; x++)
@@ -258,7 +258,7 @@ HWND getTopWindow()
 	return window;
 }
 
-void resize_and_move_window_to(HWND win, RECT area)
+void resizeAndMoveWindowTo(HWND win, RECT area)
 {
 	RECT workarea, rect;
 	HMONITOR current_monitor;
@@ -293,7 +293,7 @@ void resize_and_move_window_to(HWND win, RECT area)
 	SetWindowPos(win, 0, rect.left, rect.top, rect.right - rect.left,
 		     rect.bottom - rect.top, 0);
 
-	uncheck_all_buttons();
+	uncheckAllButtons();
 }
 
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -325,7 +325,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 							area.left = min(x, last_click_position.x);
 							area.right = max(x, last_click_position.x);
 
-							resize_and_move_window_to(top_window, area);
+							resizeAndMoveWindowTo(top_window, area);
 							centerOnWindow(main_window, top_window);
 						}
 						last_click_position.x = x;
