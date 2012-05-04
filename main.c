@@ -43,11 +43,13 @@ unsigned BUTTON_ROWS = 6;
 unsigned BUTTON_COLS = 6;
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow);
-LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-HWND createMatrixButton(HWND parent, HINSTANCE hInstance, unsigned i, unsigned j);
-HWND createMainWindow(HINSTANCE current_instance);
 void exitApplication();
 void toggleWindowVisible();
+HWND createMatrixButton(HWND parent, HINSTANCE hInstance, unsigned i, unsigned j);
+HWND createMainWindow(HINSTANCE current_instance);
+void centerOnWindow(HWND windowToCenter, HWND windowToCenterOn);
+void uncheck_all_buttons();
+LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 HWND top_window, main_window;
 bool is_visible = false;
@@ -67,6 +69,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 	trayicon_add_item("Exit", &exitApplication);
 
 	main_window = createMainWindow(hInstance);
+	SetTimer(main_window, 1, 500, NULL);
 
 	is_visible = false;
 
@@ -82,10 +85,15 @@ void toggleWindowVisible()
 {
 	is_visible = !is_visible;
 	if (is_visible) {
+		centerOnWindow(main_window, top_window);
 		ShowWindow(main_window, SW_SHOWDEFAULT);
 		UpdateWindow(main_window);
-	} else
+		SetFocus(main_window);
+	} else {
 		ShowWindow(main_window, SW_HIDE);
+		is_checking = false;
+	}
+
 }
 
 POINT getTopMidOfWindow(HWND window)
@@ -124,6 +132,9 @@ void centerOnWindow(HWND windowToCenter, HWND windowToCenterOn)
 	point.y = max(0, point.y);
 
 	SetWindowPos(windowToCenter, HWND_TOPMOST, point.x, point.y, 0, 0, SWP_NOSIZE);
+
+	is_checking = false;
+	uncheck_all_buttons();
 }
 
 void resizeMainWindow(HWND win)
@@ -215,6 +226,14 @@ void initGUI(HWND win, HINSTANCE hInstance)
 
 }
 
+void uncheck_all_buttons()
+{
+	unsigned x, y;
+	for (x = 0; x < BUTTON_COLS; x++)
+		for (y = 0; y < BUTTON_ROWS; y++)
+			SendMessage(buttons[y][x], BM_SETCHECK, BST_UNCHECKED, 0);
+}
+
 bool isResizeAndMoveAble(HWND window)
 {
 	static HWND taskbar, desktop;
@@ -297,13 +316,6 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 
 			is_checking = !is_checking;
-			if (!is_checking) {
-				//uncheck all buttons
-				for (x = 0; x < BUTTON_COLS; x++)
-					for (y = 0; y < BUTTON_ROWS; y++)
-						SendMessage(buttons[y][x],
-							    BM_SETCHECK, BST_UNCHECKED, 0);
-			}
 			return 0;
 		}
 		break;
@@ -322,12 +334,13 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			HWND foreground = GetForegroundWindow();
 			if (foreground != hWnd && isResizeAndMoveAble(foreground)) {
-				KillTimer(hWnd, 1);
 				top_window = foreground;
-
-				centerOnWindow(hWnd, top_window);
-				SetFocus(hWnd);
+				if (is_visible) {
+					centerOnWindow(hWnd, top_window);
+					SetFocus(hWnd);
+				}
 			}
+			SetTimer(hWnd, 1, 500, NULL);
 			return 0;
 		}
 
