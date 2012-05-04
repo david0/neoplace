@@ -49,6 +49,7 @@ HWND createMatrixButton(HWND parent, HINSTANCE hInstance, unsigned i, unsigned j
 HWND createMainWindow(HINSTANCE current_instance);
 void centerOnWindow(HWND windowToCenter, HWND windowToCenterOn);
 void uncheck_all_buttons();
+HWND getTopWindow();
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 HWND top_window, main_window;
@@ -85,13 +86,16 @@ void toggleWindowVisible()
 {
 	is_visible = !is_visible;
 	if (is_visible) {
+		top_window = getTopWindow();
 		centerOnWindow(main_window, top_window);
 		ShowWindow(main_window, SW_SHOWDEFAULT);
 		UpdateWindow(main_window);
 		SetFocus(main_window);
+		SetTimer(main_window, 1, 500, NULL);
 	} else {
 		ShowWindow(main_window, SW_HIDE);
 		is_checking = false;
+		KillTimer(main_window, 1);
 	}
 
 }
@@ -234,15 +238,24 @@ void uncheck_all_buttons()
 			SendMessage(buttons[y][x], BM_SETCHECK, BST_UNCHECKED, 0);
 }
 
-bool isResizeAndMoveAble(HWND window)
+HWND getTopWindow()
 {
 	static HWND taskbar, desktop;
+	HWND window;
 	if (!taskbar)
 		taskbar = FindWindow("Shell_TrayWnd", NULL);
 	if (!desktop)
 		desktop = GetDesktopWindow();
-	return GetWindowLongPtr(window, GWL_STYLE) & WS_SIZEBOX
-	    && window != taskbar && window != desktop;
+
+	window = GetForegroundWindow();
+	while ((!(GetWindowLongPtr(window, GWL_STYLE) & WS_SIZEBOX)
+		|| window == taskbar || window == desktop || window == main_window)
+	       && window != NULL) {
+
+		window = GetNextWindow(window, GW_HWNDNEXT);
+
+	}
+	return window;
 }
 
 void resize_and_move_window_to(HWND win, RECT area)
@@ -275,8 +288,12 @@ void resize_and_move_window_to(HWND win, RECT area)
 				    area.bottom) * (double)(workarea.bottom -
 							    workarea.top) / BUTTON_ROWS;
 
+	ShowWindowAsync(win, SW_SHOWNORMAL);
+
 	SetWindowPos(win, 0, rect.left, rect.top, rect.right - rect.left,
 		     rect.bottom - rect.top, 0);
+
+	uncheck_all_buttons();
 }
 
 LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
@@ -309,6 +326,7 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 							area.right = max(x, last_click_position.x);
 
 							resize_and_move_window_to(top_window, area);
+							centerOnWindow(main_window, top_window);
 						}
 						last_click_position.x = x;
 						last_click_position.y = y;
@@ -332,8 +350,8 @@ LRESULT CALLBACK MainWndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
 	case WM_TIMER:
 		{
-			HWND foreground = GetForegroundWindow();
-			if (foreground != hWnd && isResizeAndMoveAble(foreground)) {
+			HWND foreground = getTopWindow();
+			if (foreground != top_window) {
 				top_window = foreground;
 				if (is_visible) {
 					centerOnWindow(hWnd, top_window);
