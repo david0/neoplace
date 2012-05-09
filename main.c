@@ -248,9 +248,9 @@ HWND getTopWindow()
 		desktop = GetDesktopWindow();
 
 	window = GetForegroundWindow();
-	while ((!(GetWindowLongPtr(window, GWL_STYLE) & WS_SIZEBOX)
-		|| window == taskbar || window == desktop || window == main_window)
-	       && window != NULL) {
+	while ( ((GetWindowLongPtr(window, GWL_STYLE) & (WS_SIZEBOX | WS_VISIBLE)) != (WS_SIZEBOX | WS_VISIBLE)) ||
+		   window == taskbar || window == desktop || window == main_window
+	       || window == NULL) {
 
 		window = GetNextWindow(window, GW_HWNDNEXT);
 
