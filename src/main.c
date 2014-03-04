@@ -132,8 +132,8 @@ void centerOnWindow(HWND windowToCenter, HWND windowToCenterOn)
 	width = rect.right - rect.left;
 	height = rect.bottom - rect.top;
 
-	point.x = max(0, point.x - width / 2);
-	point.y = max(0, point.y);
+	point.x = point.x - width / 2;
+	point.y = point.y;
 
 	SetWindowPos(windowToCenter, HWND_TOPMOST, point.x, point.y, 0, 0, SWP_NOSIZE);
 
