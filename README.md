@@ -5,6 +5,8 @@ a tiling extension for windows
 
 neoplace is a easy to use application that helps you to arrange your windows more efficient. 
 
+[![Build Status](https://travis-ci.org/david0/neoplace.png)](https://travis-ci.org/david0/neoplace)
+
 ![neoplace demo animation](docs/images/anim.gif)
 
 Usage
